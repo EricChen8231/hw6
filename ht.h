@@ -456,15 +456,14 @@ void HashTable<K, V, Prober, Hash, KEqual>::resize() {
   totalCount = 0;
 
   for (size_t i = 0; i < tableHolder.size(); i++) { 
-    if (tableHolder[i] != nullptr) {
-        if (tableHolder[i]->deleted) {
-           delete tableHolder[i]; 
-           tableHolder[i] = nullptr; 
-        } else { 
-           this->insert(tableHolder[i]->item); 
-        }
-    }
-  }
+   if (tableHolder[i] != nullptr) {
+      if (!tableHolder[i]->deleted) { 
+         this->insert(tableHolder[i]->item); 
+      }
+      delete tableHolder[i]; // Delete after rehashing
+      tableHolder[i] = nullptr; // Avoid dangling pointers
+   }
+}
 }
 
 // Almost complete
