@@ -313,9 +313,12 @@ HashTable<K,V,Prober,Hash,KEqual>::HashTable(
 template<typename K, typename V, typename Prober, typename Hash, typename KEqual>
 HashTable<K,V,Prober,Hash,KEqual>::~HashTable()
 {
-    while(table_.size() != 0) { 
-        table_.pop_back();
+    for (auto item : table_) {
+        if (item != nullptr) {
+            delete item;
+        }
     }
+    table_.clear();
 
     itemCount = 0;
     totalCount = 0;
@@ -370,6 +373,8 @@ void HashTable<K,V,Prober,Hash,KEqual>::remove(const KeyType& key)
         itemCount--;
         //dont decrease total count
     }
+
+
 
 }
 
@@ -472,7 +477,7 @@ HASH_INDEX_T HashTable<K,V,Prober,Hash,KEqual>::probe(const KeyType& key) const
     HASH_INDEX_T loc = prober_.next(); 
     while(Prober::npos != loc)
     {
-        if(nullptr == table_[loc] ) {
+        if(nullptr == table_[loc]) {
             return loc;
         }
         // fill in the condition for this else if statement which should 
