@@ -5,7 +5,7 @@
 #include <cmath>
 #include <random>
 #include <chrono>
-
+#include <algorithm>
 typedef std::size_t HASH_INDEX_T;
 
 struct MyStringHash {
@@ -17,20 +17,47 @@ struct MyStringHash {
         }
     }
     // hash function entry point (i.e. this is h(k))
-    HASH_INDEX_T operator()(const std::string& k) const
+    HASH_INDEX_T operator()(const std::string &k) const
     {
-        // Add your code here
+        // Initialize w to zeros
+        unsigned long long w[5] = {0, 0, 0, 0, 0};
 
+        int index = k.size();
+        for (int i = 4; i >= 0 && index > 0; i--)
+        {                                          
+            int endIndex = std::max(0, index - 6); 
+            unsigned long long power = 1;          // Initialize the power of 36
+            for (int j = index - 1; j >= endIndex; j--)
+            {                                              
+                w[i] += power * letterDigitToNumber(k[j]); 
+                power *= 36;                               
+            }
+            index = endIndex; // Update the index for the next substring
+        }
 
+        HASH_INDEX_T result = 0;
+        for (int i = 0; i < 5; i++)
+        { 
+            result += rValues[i] * w[i];
+        }
+
+        return result;
     }
 
     // A likely helper function is to convert a-z,0-9 to an integral value 0-35
     HASH_INDEX_T letterDigitToNumber(char letter) const
     {
-        // Add code here or delete this helper function if you do not want it
-
+        if (std::isdigit(letter))
+        {
+            return letter - '0' + 26; //26-35
+        }
+        else
+        {
+            char letterCopy = std::tolower(letter);
+            return letterCopy - 'a'; // 0-25
+        }
     }
-
+    
     // Code to generate the random R values
     void generateRValues()
     {
